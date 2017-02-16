@@ -41,7 +41,7 @@ answers << "#{add.street}\n#{add.city} #{add.state}, #{add.zip}"
 virginie = User.find_by(first_name: "Virginie", last_name: "Mitchell")
 virginie.addresses.find_by(state: "NY").update(city: "New York", state: "NY", zip: "10108")
 v_address = virginie.addresses.find_by(state: "NY")
-answers << "#{v_address.street}\n#{v_address.city} #{v_address.state}, #{v_address.zip}"
+answers << "Updated address:\n#{v_address.street}\n#{v_address.city} #{v_address.state}, #{v_address.zip}"
 
 # How much would it cost to buy one of each tool?
 tool_cost = "$#{Item.where("category LIKE '%tools%'").sum(:price)}"
