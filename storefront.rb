@@ -63,13 +63,22 @@ answers << "$#{list} spent on books"
 ordered_by_item = Order.joins(:item).group(:title).sum(:quantity).sort_by{|k,v| -v}
 answers << "#{ordered_by_item.first[0]} was ordered #{ordered_by_item.first[1]} times."
 
+most_ordered = Item.joins(:orders).order("sum_quantity desc").group(:title).sum(:quantity).first
+p most_ordered
+
 #Grossed the most money?
 gross_by_item = Order.joins(:item).group(:title).sum("quantity*price").sort_by{|k,v| -v}
 answers << "#{gross_by_item.first[0]} brought in $#{gross_by_item.first[1]}"
 
+most_money = Order.joins(:item).order("sum_priceallquantity desc").group(:title).sum("price*quantity").first
+p most_money
+
 # What user spent the most?
 spent_by_user = Order.joins(:item).group(:user_id).sum("quantity*price").sort_by{|k,v| -v}
 spendiest_user = User.find_by(id: spent_by_user.first[0])
+
+spendy = User.joins(:item).order("sum_quantityallprice desc").group(:first_name, :last_name).sum("price*quantity").first
+p spendy
 
 answers << "#{spendiest_user.first_name} #{spendiest_user.last_name} spent $#{spent_by_user.first[1]}"
 
@@ -79,6 +88,7 @@ gross_by_category = Order.joins(:item).group(:category).sum("quantity*price").so
 gross_by_category.each_with_index do |cat, i|
   answers << "#{i+1}) #{cat[0]} : $#{cat[1]}"
 end
+
 
 puts answers
 # Simulate buying an item by inserting a User from command line input (ask the user for their information) and an Order for that User (have them pick what they'd like to order and other needed order information).
@@ -103,7 +113,7 @@ end
 if prompt.yes?("Would you like to leave a review?")
 
   review_email = prompt.ask("Enter your email: ")
-  user = User.find_by("email = ?", review_email)
+  user = User.find_by(email: review_email)
   user_orders = user.orders.group_by{|order| order.item.title}
   item_to_review = prompt.select("choose an item you have ordered to review:", user_orders).first.item
   review = prompt.ask("Please write your review for #{item_to_review.title}: ")
